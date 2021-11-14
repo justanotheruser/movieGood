@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 from imdb import get_imdb_ratings
-from kinopoisk import get_kinopoisk_ratings
+import kinopoisk
 
 
 async def main():
@@ -9,7 +9,7 @@ async def main():
         # imdb_ratings = await get_imdb_ratings(client,
         #                                      'https://www.imdb.com/user/ur58128213/ratings')
         # print(imdb_ratings)
-        ratings = await get_kinopoisk_ratings(client, 'https://www.kinopoisk.ru/user/95268254/votes/')
+        ratings = await kinopoisk.get_ratings(client, 'https://www.kinopoisk.ru/user/95268254/votes/')
         print(ratings)
 
 
