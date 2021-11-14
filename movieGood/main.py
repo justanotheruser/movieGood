@@ -9,7 +9,7 @@ async def main():
         # imdb_ratings = await get_imdb_ratings(client,
         #                                      'https://www.imdb.com/user/ur58128213/ratings')
         # print(imdb_ratings)
-        ratings = await kinopoisk.get_ratings(client, 'https://www.kinopoisk.ru/user/95268254/votes/')
+        ratings = await kinopoisk.get_movies(client, 'https://www.kinopoisk.ru/user/95268254/votes/')
         print(ratings)
 
 
