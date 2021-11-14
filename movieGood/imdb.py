@@ -9,16 +9,16 @@ from fetch import fetch
 async def imdb_ratings_pages(client, start_page_url):
     next_page_link = start_page_url
     while next_page_link:
-        imdb_page = await fetch(client, next_page_link)
+        page = await fetch(client, next_page_link)
         with tempfile.TemporaryDirectory() as tmpdirname:
-            tmpfilename = os.path.join(tmpdirname, 'imdb_page.html')
+            tmpfilename = os.path.join(tmpdirname, 'page.html')
             with open(tmpfilename, 'w', encoding='utf-8') as f:
-                f.write(imdb_page)
-            page_tree: lxml.etree._ElementTree = etree.parse(tmpfilename, etree.HTMLParser())
-            yield page_tree
-            next_page_link = list(page_tree.xpath('//div[@class="list-pagination"]'
-                                                  '/a[(contains(@class, "next-page")'
-                                                  '    and not(contains(@class, "disabled")))]/@href'))
+                f.write(page)
+            tree: lxml.etree._ElementTree = etree.parse(tmpfilename, etree.HTMLParser())
+            yield tree
+            next_page_link = list(tree.xpath('//div[@class="list-pagination"]'
+                                             '/a[(contains(@class, "next-page")'
+                                             '    and not(contains(@class, "disabled")))]/@href'))
             if next_page_link:
                 next_page_link = 'https://www.imdb.com' + next_page_link[0]
 

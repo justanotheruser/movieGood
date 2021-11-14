@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 lxml = "*"
 aiohttp = "*"
-selenium = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.7"
