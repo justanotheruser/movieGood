@@ -64,7 +64,7 @@ def get_root_votes_page(url: str):
     return match.group(1) + 'votes/'
 
 
-def get_page_tree(page: str) ->  lxml.etree._ElementTree:
+def get_page_tree(page: str) -> lxml.etree._ElementTree:
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmpfilename = os.path.join(tmpdirname, 'page.html')
         with open(tmpfilename, 'w', encoding='utf-8') as f:
@@ -106,12 +106,42 @@ def parse_page_tree(tree: lxml.etree._ElementTree):
 
 
 def parse_item(item):
+    rus_title, year = parse_rus_title_and_year(item)
+    orig_title = parse_orig_title(item)
+    rating = parse_rating(item)
+    return MovieInfo(rus_title, orig_title, year, rating)
+
+
+def parse_rating(item):
+    vote = list(item.xpath('.//div[@class="vote"]'))
+    if not vote:
+        raise ParsingFailedException(FLASK_G_URL, item, 'Expected to find "vote"')
+    rating = vote[0].xpath('./text()')
+    if rating:
+        rating = int(str(rating[0]))
+    else:
+        # Watched but not rated
+        rating = None
+    return rating
+
+
+def parse_orig_title(item):
+    orig_title = list(item.xpath('.//div[@class="nameEng"]/text()'))
+    if orig_title:
+        orig_title = orig_title[0]
+    else:
+        raise ParsingFailedException(FLASK_G_URL, item, 'Expected to find "nameEng"')
+    if re.match(r'^\s*$', orig_title):
+        orig_title = None
+    return orig_title
+
+
+def parse_rus_title_and_year(item):
     rus_title = list(item.xpath('.//div[@class="nameRus"]/a/text()'))
     if rus_title:
         rus_title = rus_title[0]
     else:
         raise ParsingFailedException(FLASK_G_URL, item, 'Expected to find "nameRus"')
-
     title_regexs = [
         r'(.*?) \((\d{4})\)',
         r'(.*?) \(сериал, (\d{4})',
@@ -127,19 +157,4 @@ def parse_item(item):
         year = int(match.group(2))
     else:
         raise ParsingFailedException(FLASK_G_URL, item, f'Unexpted format of rus title {rus_title}')
-
-    orig_title = list(item.xpath('.//div[@class="nameEng"]/text()'))
-    if orig_title:
-        orig_title = orig_title[0]
-    else:
-        raise ParsingFailedException(FLASK_G_URL, item, 'Expected to find "nameEng"')
-    if orig_title == ' ':
-        orig_title = None
-
-    rating = list(item.xpath('.//div[@class="vote"]/text()'))
-    if rating:
-        rating = int(rating[0])
-    else:
-        raise ParsingFailedException(FLASK_G_URL, item, 'Expected to find "vote"')
-
-    return MovieInfo(rus_title, orig_title, year, rating)
+    return rus_title, year

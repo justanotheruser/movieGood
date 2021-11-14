@@ -3,6 +3,7 @@ import pytest
 import os
 from lxml import etree
 
+
 @pytest.mark.parametrize('input_url, result_url',
                          [('https://www.kinopoisk.ru/user/3669404/votes/',
                            'https://www.kinopoisk.ru/user/3669404/votes/'),
@@ -17,7 +18,16 @@ def test_get_root_votes_page(input_url, result_url):
 
 @pytest.mark.parametrize('item_file, exp_result',
                          [('kinopoisk_series_item.html',
-                          kinopoisk.MovieInfo('Во все тяжкие', 'Breaking Bad', 2008, 10))])
+                           kinopoisk.MovieInfo('Во все тяжкие', 'Breaking Bad', 2008, 10)),
+                          ('kinopoisk_miniseries_item.html',
+                           kinopoisk.MovieInfo('Чернобыль', 'Chernobyl', 2019, None)),
+                          ('kinopoisk_movie_item.html',
+                           kinopoisk.MovieInfo('Белфегор – призрак Лувра',
+                                               'Belphégor - Le fantôme du Louvre', 2001, 5)),
+                          ('kinopoisk_rus_movie_item.html',
+                           kinopoisk.MovieInfo('Бриллиантовая рука', None, 1968, 9)),
+                          ('kinopoisk_watched_item.html',
+                           kinopoisk.MovieInfo('Остров собак', 'Isle of Dogs', 2018, None))])
 def test_parse_item(item_file, exp_result):
     dir_path, _ = os.path.split(__file__)
     item_file = os.path.join(dir_path, 'tests_data', item_file)
