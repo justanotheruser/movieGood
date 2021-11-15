@@ -7,8 +7,8 @@ import imdb
 async def main():
     imdb_movies = await imdb.get_movies('https://www.imdb.com/user/ur58128213/ratings')
     print(imdb_movies)
-        #ratings = await kinopoisk.get_movies(client, 'https://www.kinopoisk.ru/user/95268254/votes/')
-        #print(ratings)
+    #ratings = await kinopoisk.get_movies(client, 'https://www.kinopoisk.ru/user/95268254/votes/')
+    #print(ratings)
 
 
 if __name__ == '__main__':

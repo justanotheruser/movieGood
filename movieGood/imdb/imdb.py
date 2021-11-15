@@ -3,18 +3,26 @@ import lxml
 from lxml import etree
 import os
 import aiohttp
+import pandas as pd
 
 from movieGood.fetch import fetch
 from movieGood.imdb.parse import parse_ratings_page
 
 
 async def get_movies(url, title_language='en'):
-    movies = []
+    titles, imdb_title_ids, years, ratings = [], [], [], []
     headers = {'Accept-Language': title_language}
     async with aiohttp.ClientSession(headers=headers) as client:
         async for page_tree in ratings_pages(client, url):
-            movies.extend(parse_ratings_page(page_tree))
-        return movies
+            page_titles, page_imdb_title_ids, page_years, page_ratings = parse_ratings_page(page_tree)
+            titles.extend(page_titles)
+            imdb_title_ids.extend(page_imdb_title_ids)
+            years.extend(page_years)
+            ratings.extend(page_ratings)
+    return pd.DataFrame({'imdb_title_id': imdb_title_ids,
+                         f'title_{title_language}': titles,
+                         'year': years, 'rating': ratings})
+
 
 
 async def ratings_pages(client, start_page_url):

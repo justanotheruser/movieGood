@@ -1,17 +1,23 @@
+import pandas as pd
+from transliterate import translit
+
 from movieGood.kinopoisk.fetch_pages import get_kinopoisk_pages, get_page_tree
 from movieGood.kinopoisk.parse import parse_page_tree
-from transliterate import translit
 
 
 async def get_movies(client, url):
-    movies = []
+    rus_title, orig_title, year, rating = [], [], [], []
     pages = await get_kinopoisk_pages(client, url)
     for page in pages:
-        movies.extend(parse_page_tree(get_page_tree(page)))
-    for i in range(len(movies)):
-        if not movies[i].orig_title:
-            movies[i].orig_title = transliterate(movies[i].rus_title)
-    return movies
+        page_rus_title, page_orig_title, page_year, page_rating = parse_page_tree(get_page_tree(page))
+        rus_title.extend(page_rus_title)
+        year.extend(page_year)
+        rating.extend(page_rating)
+    for i in range(len(orig_title)):
+        if not orig_title[i]:
+            orig_title[i] = transliterate(rus_title[i])
+    return pd.DataFrame({'rus_title': rus_title, 'orig_title': orig_title,
+                         'year': year, 'rating': rating})
 
 
 def transliterate(rus_title):

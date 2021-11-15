@@ -7,9 +7,7 @@ def parse_ratings_page(tree: lxml.etree._ElementTree):
     imdb_title_ids = parse_imdb_title_ids(tree)
     years = parse_years(tree)
     ratings = parse_ratings(tree)
-    movies = list(zip(titles, imdb_title_ids, years, ratings))
-    print(movies)
-    return movies
+    return titles, imdb_title_ids, years, ratings
 
 
 def parse_titles(tree):

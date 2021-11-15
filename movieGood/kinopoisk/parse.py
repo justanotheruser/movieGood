@@ -3,22 +3,25 @@ import re
 import lxml
 
 from movieGood.exceptions import ParsingFailedException
-from movieGood.kinopoisk.movie_info import MovieInfo
 
 
 def parse_page_tree(tree: lxml.etree._ElementTree):
-    movies = []
+    page_rus_title, page_orig_title, page_year, page_rating = [], [], [], []
     items = tree.xpath('//div[@class="profileFilmsList"]/div[contains(@class, "item")]')
     for item in items:
-        movies.append(parse_item(item))
-    return movies
+        rus_title, orig_title, year, rating = parse_item(item)
+        page_rus_title.append(rus_title)
+        page_orig_title.append(orig_title)
+        page_year.append(year)
+        page_rating.append(rating)
+    return page_rus_title, page_orig_title, page_year, page_rating
 
 
 def parse_item(item):
     rus_title, year = parse_rus_title_and_year(item)
     orig_title = parse_orig_title(item)
     rating = parse_rating(item)
-    return MovieInfo(rus_title, orig_title, year, rating)
+    return rus_title, orig_title, year, rating
 
 
 def parse_rating(item):
