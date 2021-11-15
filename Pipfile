@@ -8,6 +8,7 @@ lxml = "*"
 aiohttp = "*"
 transliterate = "*"
 pandas = "*"
+click = "*"
 
 [dev-packages]
 pytest = "*"

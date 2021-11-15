@@ -1,5 +1,8 @@
-import lxml
 import re
+
+import lxml
+
+from movieGood.exceptions import ParsingFailedException
 
 
 def parse_ratings_page(tree: lxml.etree._ElementTree):
@@ -17,20 +20,37 @@ def parse_titles(tree):
 
 def parse_imdb_title_ids(tree):
     imdb_title_hrefs = list(tree.xpath('//h3[@class="lister-item-header"]/a/@href'))
-    imdb_title_ids = [re.search(r'https://www.imdb.com/title/(tt\d+)/.*', href).group(1)
-                      for href in imdb_title_hrefs]
+    try:
+        imdb_title_ids = [re.search(r'/title/(tt\d+)/.*', href).group(1)
+                          for href in imdb_title_hrefs]
+    except AttributeError:
+        raise ParsingFailedException("FLASK_G_URL", tree,
+                                     'Failed to parse IMDB title ids')
     return imdb_title_ids
 
 
 def parse_years(tree):
     years = list(tree.xpath('//h3[@class="lister-item-header"]'
                             '/span[contains(@class, "lister-item-year")]/text()'))
-    years = [int(y[1:5]) for y in years]  # removing () brackets
+    try:
+        cur_year = None
+        for i in range(len(years)):
+            cur_year = years[i]
+            # Roman numerals are used to distinguish movies that share title and release year.
+            # If this is TV show use show's starting year.
+            years[i] = int(re.match(r'(?:\(I+\) )?\((\d{4}).*', years[i]).group(1))
+    except:
+        raise ParsingFailedException("FLASK_G_URL", tree,
+                                     f'Failed to parse year: "{cur_year}"')
     return years
 
 
 def parse_ratings(tree):
     ratings = list(tree.xpath('//div[@class="ipl-rating-star ipl-rating-star--other-user small"]'
                               '/span[@class="ipl-rating-star__rating"]/text()'))
-    ratings = [int(r) for r in ratings]
+    try:
+        ratings = [int(r) for r in ratings]
+    except ValueError:
+        raise ParsingFailedException("FLASK_G_URL", tree,
+                                     'Failed to parse ratings')
     return ratings

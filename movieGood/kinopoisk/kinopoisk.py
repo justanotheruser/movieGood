@@ -1,3 +1,4 @@
+import aiohttp
 import pandas as pd
 from transliterate import translit
 
@@ -5,12 +6,14 @@ from movieGood.kinopoisk.fetch_pages import get_kinopoisk_pages, get_page_tree
 from movieGood.kinopoisk.parse import parse_page_tree
 
 
-async def get_movies(client, url):
+async def get_movies(url) -> pd.DataFrame:
     rus_title, orig_title, year, rating = [], [], [], []
-    pages = await get_kinopoisk_pages(client, url)
+    async with aiohttp.ClientSession() as client:
+        pages = await get_kinopoisk_pages(client, url)
     for page in pages:
         page_rus_title, page_orig_title, page_year, page_rating = parse_page_tree(get_page_tree(page))
         rus_title.extend(page_rus_title)
+        orig_title.extend(page_orig_title)
         year.extend(page_year)
         rating.extend(page_rating)
     for i in range(len(orig_title)):

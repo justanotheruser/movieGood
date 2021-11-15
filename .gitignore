@@ -2,3 +2,6 @@ __pycache__
 .idea
 .mypy_cache/
 test_data/
+dump/
+dll_api.egg-info/
+.eggs/

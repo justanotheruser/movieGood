@@ -8,7 +8,9 @@ from movieGood.imdb.parse import parse_ratings_page
 
 @pytest.mark.parametrize('item_file, exp_result',
                          [('imdb_movie_item.html',
-                           (['Матрица: Революция'], ['tt0242653'], [2003], [6]))
+                           (['Матрица: Революция'], ['tt0242653'], [2003], [6])),
+                          ('imdb_movie_item_year_w_roman_numerals.html',
+                           (['Now You See Me'], ['tt1670345'], [2013], [6]))
                           ])
 def test_parse_item(item_file, exp_result):
     dir_path, _ = os.path.split(__file__)

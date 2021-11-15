@@ -16,15 +16,15 @@ MAX_RATINGS_PER_PAGE = 200
 
 
 async def get_kinopoisk_pages(client, url) -> List[str]:
-    root_url = get_root_votes_page(url)
-    first_page = await fetch(client, root_url)
-    FLASK_G_URL = root_url
+    first_page_url, _ = get_first_page_and_user_id(url)
+    first_page = await fetch(client, first_page_url)
+    FLASK_G_URL = first_page
     first_page_tree = get_page_tree(first_page)
     total_ratings = get_total_ratings_amount(first_page_tree)
     if not total_ratings:
         return [first_page]
     total_pages = math.ceil(total_ratings / MAX_RATINGS_PER_PAGE)
-    pages_urls = [root_url + f'list/ord/date/perpage/{MAX_RATINGS_PER_PAGE}/page/{i}/'
+    pages_urls = [first_page_url + f'list/ord/date/perpage/{MAX_RATINGS_PER_PAGE}/page/{i}/'
                   for i in range(2, total_pages + 1)]
     pages_fut = await fetch_pages(client, pages_urls)
     # todo: try-except
@@ -32,11 +32,11 @@ async def get_kinopoisk_pages(client, url) -> List[str]:
     return [first_page] + pages
 
 
-def get_root_votes_page(url: str):
-    match = re.search(r'(https://www.kinopoisk.ru/user/\d{1,}/).*', url)
+def get_first_page_and_user_id(url: str):
+    match = re.search(r'(https://www.kinopoisk.ru/user/(\d+)/).*', url)
     if not match:
-        raise InvalidLinkException(url, 'Ссылка не является ссылкой на профиль пользователя Кинопоиска')
-    return match.group(1) + 'votes/'
+        return None, None
+    return match.group(1) + 'votes/', match.group(2)
 
 
 def get_page_tree(page: str) -> lxml.etree._ElementTree:

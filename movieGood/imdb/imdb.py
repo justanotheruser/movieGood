@@ -1,19 +1,22 @@
-import tempfile
-import lxml
-from lxml import etree
 import os
+import re
+import tempfile
+
 import aiohttp
+import lxml
 import pandas as pd
+from lxml import etree
 
 from movieGood.fetch import fetch
 from movieGood.imdb.parse import parse_ratings_page
 
 
 async def get_movies(url, title_language='en'):
+    first_page_url, _ = get_first_page_and_user_id(url)
     titles, imdb_title_ids, years, ratings = [], [], [], []
     headers = {'Accept-Language': title_language}
     async with aiohttp.ClientSession(headers=headers) as client:
-        async for page_tree in ratings_pages(client, url):
+        async for page_tree in ratings_pages(client, first_page_url):
             page_titles, page_imdb_title_ids, page_years, page_ratings = parse_ratings_page(page_tree)
             titles.extend(page_titles)
             imdb_title_ids.extend(page_imdb_title_ids)
@@ -23,6 +26,12 @@ async def get_movies(url, title_language='en'):
                          f'title_{title_language}': titles,
                          'year': years, 'rating': ratings})
 
+
+def get_first_page_and_user_id(url: str):
+    match = re.search(r'(https://www.imdb.com/user/ur(\d+)/).*', url)
+    if not match:
+        return None, None
+    return match.group(1) + 'ratings/', match.group(2)
 
 
 async def ratings_pages(client, start_page_url):
@@ -40,5 +49,3 @@ async def ratings_pages(client, start_page_url):
                                              '    and not(contains(@class, "disabled")))]/@href'))
             if next_page_link:
                 next_page_link = 'https://www.imdb.com' + next_page_link[0]
-
-

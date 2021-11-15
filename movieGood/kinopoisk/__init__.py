@@ -1,1 +1,2 @@
 from movieGood.kinopoisk.kinopoisk import get_movies
+from movieGood.kinopoisk.fetch_pages import get_first_page_and_user_id
