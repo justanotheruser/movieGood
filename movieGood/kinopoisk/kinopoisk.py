@@ -16,10 +16,15 @@ async def get_movies(url) -> pd.DataFrame:
         orig_title.extend(page_orig_title)
         year.extend(page_year)
         rating.extend(page_rating)
+
+    is_rus = [False] * len(orig_title)
     for i in range(len(orig_title)):
         if not orig_title[i]:
+            is_rus[i] = True
             orig_title[i] = transliterate(rus_title[i])
-    return pd.DataFrame({'rus_title': rus_title, 'orig_title': orig_title,
+
+    return pd.DataFrame({'title_ru': rus_title, 'is_rus': is_rus,
+                         'orig_title': orig_title,
                          'year': year, 'rating': rating})
 
 

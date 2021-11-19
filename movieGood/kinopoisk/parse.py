@@ -30,7 +30,11 @@ def parse_rating(item):
         raise ParsingFailedException("FLASK_G_URL", item, 'Expected to find "vote"')
     rating = vote[0].xpath('./text()')
     if rating:
-        rating = int(str(rating[0]))
+        try:
+            rating = int(str(rating[0]))
+        except ValueError:
+            raise ParsingFailedException("FLASK_G_URL", item,
+                                         f'Failed to convert rating {str(rating[0])} to number')
     else:
         # Watched but not rated
         rating = None

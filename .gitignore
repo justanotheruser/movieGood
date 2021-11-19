@@ -5,3 +5,4 @@ test_data/
 dump/
 dll_api.egg-info/
 .eggs/
+dump_my_ratings.bat
